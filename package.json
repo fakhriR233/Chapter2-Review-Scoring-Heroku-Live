@@ -1,0 +1,24 @@
+{
+  "name": "task-node",
+  "version": "1.0.0",
+  "description": "trying node",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fakhriR233/Chapter2-Task-Day1.git"
+  },
+  "author": "M Fakhri Ramadhan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fakhriR233/Chapter2-Task-Day1/issues"
+  },
+  "homepage": "https://github.com/fakhriR233/Chapter2-Task-Day1#readme",
+  "dependencies": {
+    "express": "^4.18.1",
+    "hbs": "^4.2.0",
+    "nodemon": "^2.0.16"
+  }
+}

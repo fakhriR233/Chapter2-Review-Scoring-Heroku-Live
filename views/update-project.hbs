@@ -1,0 +1,237 @@
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta http-equiv='X-UA-Compatible' content='IE=edge' />
+    <meta
+      name='viewport'
+      content='width=device-width, initial-scale=1.0'
+    />
+    <title>Add Project</title>
+    <link
+      rel='stylesheet'
+      href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css'
+    />
+    <link
+      href='https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css'
+      rel='stylesheet'
+      integrity='sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor'
+      crossorigin='anonymous'
+    />
+    <link rel='stylesheet' href='../assets/css/style.css' />
+    <script
+      src='https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js'
+      integrity='sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2'
+      crossorigin='anonymous'
+    ></script>
+  </head>
+  <body>
+    <header>
+      <nav class='navbar navbar-expand-lg bg-light'>
+        <div class='container'>
+          <a class='navbar-brand' href='/'>
+            <img
+              src='../assets/img/brandred.png'
+              alt='Logo Dumbways'
+              width='30'
+              height='24'
+            />
+          </a>
+          <button
+            class='navbar-toggler'
+            type='button'
+            data-bs-toggle='collapse'
+            data-bs-target='#navbarSupportedContent'
+            aria-controls='navbarSupportedContent'
+            aria-expanded='false'
+            aria-label='Toggle navigation'
+          >
+            <span class='navbar-toggler-icon'></span>
+          </button>
+          <div
+            class='collapse navbar-collapse'
+            id='navbarSupportedContent'
+          >
+            <ul
+              class='navbar-nav me-auto mb-lg-0 justify-content-center'
+            >
+              <li class='nav-item'>
+                <a
+                  class='nav-link active'
+                  aria-current='page'
+                  href='/'
+                >Home</a>
+              </li>
+              <li class='nav-item'>
+                <a class='nav-link' href='/add-project'>Add Project</a>
+              </li>
+            </ul>
+            <form class='d-flex' role='search'>
+              <a href='/contact-me'>
+                <button type='button' class='btn btn-dark ContactMe'>
+                  Contact Me
+                </button>
+              </a>
+            </form>
+          </div>
+        </div>
+      </nav>
+    </header>
+    <div class='bg-secondary bg-opacity-10 min-vh-100'>
+      <form
+        class='form'
+        action='/update-project/{{full}}'
+        method='POST'
+      >
+        <div
+          class='row p-3 w-50 justify-content-center align-center mx-auto'
+        >
+          <h3 class='text-center mt-3 mb-2 fw-bold'>UPDATE MY PROJECT</h3>
+          <div class='col-12 mt-3'>
+            <label class='form-label' for='autoSizingInput'>Project
+              Title</label>
+            <input
+              type='text'
+              class='form-control'
+              id='autoSizingInput'
+              name='inputTitle'
+              placeholder='Name This !'
+              value='{{updateData.title}}'
+            />
+          </div>
+          <form class='row g-3'>
+            <div class='col-md-6'>
+              <label for='input4' class='form-label'>Start Date</label>
+              <input
+                type='date'
+                class='form-control'
+                id='inputStartDate4'
+                name='inputStartDate'
+                value='{{updateData.startDate}}'
+              />
+            </div>
+            <div class='col-md-6'>
+              <label for='inputP4' class='form-label'>End Date</label>
+              <input
+                type='date'
+                class='form-control'
+                id='inputEndDate4'
+                name='inputEndDate'
+                value='{{updateData.endDate}}'
+              />
+            </div>
+
+            <div class='col-12'>
+              <label
+                for='inputAddress2'
+                class='form-label'
+              >Description
+              </label>
+              <div class='form-floating'>
+                <textarea
+                  class='form-control'
+                  placeholder='Leave a comment here'
+                  id='floatingTextarea2'
+                  name='desc'
+                  style='height: 100px'
+                >{{updateData.content}}</textarea>
+                <label for='floatingTextarea2'>Project Description</label>
+              </div>
+            </div>
+
+            <div class='col-md-12'>
+
+              <label
+                for='Tech'
+                class='form-label mb-0'
+              >Technologies</label>
+              <div
+                class='ms-1 mt-0 row row-cols-1 row-cols-md-2 g-4 w-75'
+              >
+                <div class='form-check'>
+                  <input
+                    class='form-check-input'
+                    type='checkbox'
+                    value='fa-brands fa-node-js fa-2xl'
+                    id='flexCheckDefault'
+                    name='check1'
+                    {{#if updateData.nodejs}}checked{{/if}}
+                  />
+                  <label
+                    class='form-check-label'
+                    for='flexCheckDefault'
+                  >
+                    Node Js
+                  </label>
+                </div>
+
+                <div class='form-check'>
+                  <input
+                    class='form-check-input'
+                    type='checkbox'
+                    value='fa-brands fa-react fa-2xl'
+                    id='defaultCheck1'
+                    name='check2'
+                    {{#if updateData.reactjs}}checked{{/if}}
+                  />
+                  <label class='form-check-label' for='defaultCheck1'>
+                    React Js
+                  </label>
+                </div>
+
+                <div class='form-check'>
+                  <input
+                    class='form-check-input'
+                    type='checkbox'
+                    value='fa-solid fa-gem fa-2xl'
+                    id='defaultCheck2'
+                    name='check3'
+                    {{#if updateData.ruby}}checked{{/if}}
+                  />
+                  <label class='form-check-label' for='defaultCheck2'>
+                    Ruby on Rails
+                  </label>
+                </div>
+
+                <div class='form-check'>
+                  <input
+                    class='form-check-input'
+                    type='checkbox'
+                    value='fa-brands fa-golang fa-2xl'
+                    id='defaultCheck3'
+                    name='check4'
+                    {{#if updateData.go}}checked{{/if}}
+                  />
+                  <label class='form-check-label' for='defaultCheck3'>
+                    Go
+                  </label>
+                </div>
+
+              </div>
+
+            </div>
+
+            <div class='col-12'>
+              <div class='mb-3 mt-3'>
+                <label for='formFile' class='form-label'>Upload Image</label>
+                <input
+                  class='form-control'
+                  type='file'
+                  id='formFile'
+                />
+                <!-- <i class="fa-solid fa-paperclip"></i> -->
+              </div>
+            </div>
+            <div class='col-12'>
+              <button
+                type='submit'
+                class='btn btn-dark float-md-end rounded-pill'
+              >
+                Submit
+              </button>
+            </div>
+          </form>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>

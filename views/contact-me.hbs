@@ -1,0 +1,162 @@
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta http-equiv='X-UA-Compatible' content='IE=edge' />
+    <meta
+      name='viewport'
+      content='width=device-width, initial-scale=1.0'
+    />
+    <title>Contact Me</title>
+    <link
+      rel='stylesheet'
+      href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css'
+    />
+    <link
+      href='https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css'
+      rel='stylesheet'
+      integrity='sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor'
+      crossorigin='anonymous'
+    />
+    <link rel='stylesheet' href='../assets/css/style.css' />
+    <script
+      src='https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js'
+      integrity='sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2'
+      crossorigin='anonymous'
+    ></script>
+  </head>
+  <body>
+    <header>
+      <nav class='navbar navbar-expand-lg bg-light'>
+        <div class='container'>
+          <a class='navbar-brand' href='/'>
+            <img
+              src='../assets/img/brandred.png'
+              alt='Logo Dumbways'
+              width='30'
+              height='24'
+            />
+          </a>
+          <button
+            class='navbar-toggler'
+            type='button'
+            data-bs-toggle='collapse'
+            data-bs-target='#navbarSupportedContent'
+            aria-controls='navbarSupportedContent'
+            aria-expanded='false'
+            aria-label='Toggle navigation'
+          >
+            <span class='navbar-toggler-icon'></span>
+          </button>
+          <div
+            class='collapse navbar-collapse'
+            id='navbarSupportedContent'
+          >
+            <ul
+              class='navbar-nav me-auto mb-lg-0 justify-content-center'
+            >
+              <li class='nav-item'>
+                <a
+                  class='nav-link active'
+                  aria-current='page'
+                  href='/'
+                >Home</a>
+              </li>
+              <li class='nav-item'>
+                <a class='nav-link' href='/add-project'>Add Project</a>
+              </li>
+            </ul>
+            <form class='d-flex' role='search'>
+              <a href='/contact-me'>
+                <button type='button' class='btn btn-dark ContactMe'>
+                  Contact Me
+                </button>
+              </a>
+            </form>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <div class='bg-secondary bg-opacity-10 min-vh-100'>
+      <form action='/contact-me' method='POST'>
+        <div
+          class='row p-3 w-50 justify-content-center align-center mx-auto'
+        >
+          <h3 class='text-center mt-3 mb-2 fw-bold'>GET IN TOUCH</h3>
+          <div class='col-12 mt-3'>
+            <label
+              class='form-label'
+              for='autoSizingInput'
+            >Name</label>
+            <input
+              type='text'
+              class='form-control'
+              id='autoSizingInput'
+              placeholder='Jane Doe'
+            />
+          </div>
+          <form class='row g-3'>
+            <div class='mt-1'>
+              <label
+                for='inputEmail4'
+                class='form-label'
+              >Email</label>
+              <input
+                type='email'
+                class='form-control'
+                id='inputEmail4'
+                placeholder='example@mail.com'
+              />
+            </div>
+
+            <div class='col-12'>
+              <label for='inputAddress' class='form-label'>Phone
+                Number</label>
+              <input
+                type='number'
+                class='form-control'
+                id='inputAddress'
+                placeholder='+62'
+              />
+            </div>
+
+            <div class='col-md-12'>
+              <label
+                for='inputState'
+                class='form-label'
+              >Subject</label>
+              <select id='inputState' class='form-select'>
+                <option selected>FullStack</option>
+                <option>Front-End</option>
+                <option>Back-End</option>
+                <option>DevOps</option>
+              </select>
+            </div>
+
+            <div class='col-12'>
+              <label for='inputAddress2' class='form-label'>Leave a
+                Message</label>
+              <div class='form-floating'>
+                <textarea
+                  class='form-control'
+                  placeholder='Leave a comment here'
+                  id='floatingTextarea2'
+                  style='height: 100px'
+                ></textarea>
+                <label for='floatingTextarea2'>Your Message Here</label>
+              </div>
+            </div>
+            <div class='col-12'>
+              <button
+                type='submit'
+                class='btn btn-dark float-md-end rounded-pill'
+              >
+                Submit
+              </button>
+            </div>
+          </form>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>
