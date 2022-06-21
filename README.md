@@ -1,6 +1,4 @@
-# Chapter2-Task_Day3
+# Chapter2-Task_Day4
 
-Routing with Index done, Edit and Delete done.
-Add Project Index done.
-Styling problem, with button not able to align to the end of card.
-Image add/update still not working. (No Idea how)
+# Showing Dummy Data using DB
+# Fetch from Add Project is not Done

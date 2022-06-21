@@ -5,6 +5,8 @@ const app = express();
 
 const port = 8000;
 
+const db = require('./connection/db')
+
 app.set('view engine', 'hbs'); //set view engine
 
 app.use('/assets', express.static(__dirname + '/assets'));
@@ -12,28 +14,41 @@ app.use('/assets', express.static(__dirname + '/assets'));
 app.use(express.urlencoded({ extended: false }));
 
 let isLogin = true;
-let projectDetail = [
-  {
-    title: 'Aplikasi Dumbways 2021',
-    content:
-      'Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem reiciendis consectetur a. Id aperiam deserunt blanditiis tempora maxime nobis, accusamus atque delectus, blanditiis neque?',
-    duration: '3 bulan',
-    reactjs: 'fa-brands fa-react fa-2xl',
-    go: 'fa-brands fa-golang fa-2xl',
-  },
-];
+// let projectDetail = [
+//   {
+//     title: 'Aplikasi Dumbways 2021',
+//     content:
+//       'Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem reiciendis consectetur a. Id aperiam deserunt blanditiis tempora maxime nobis, accusamus atque delectus, blanditiis neque?',
+//     duration: '3 bulan',
+//     reactjs: 'fa-brands fa-react fa-2xl',
+//     go: 'fa-brands fa-golang fa-2xl',
+//   },
+// ];
 
 app.get('/', function (request, response) {
-  let data = projectDetail.map(function (item) {
-    return {
-      ...item,
-      isLogin,
-    };
-  });
+  // let data = projectDetail.map(function (item) {
+  //   return {
+  //     ...item,
+  //     isLogin,
+  //   };
+  // });
 
   //console.log(data);
 
-  response.render('index', { isLogin, full: data });
+  db.connect(function(err, client, done) {
+    if (err) throw err //menampilkan error koneksi db
+
+    client.query('SELECT * FROM tb_projects', function(err, result){
+      if (err) throw err
+      //console.log(result.rows);
+
+      let data = result.rows
+
+      response.render('index', { isLogin, full:data });
+    })
+
+  })
+
 });
 
 app.get('/contact-me', function (request, response) {
