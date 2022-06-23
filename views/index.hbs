@@ -253,7 +253,7 @@
                 <div class='col-md-12'>
                   <div class='card-body position-relative'>
                     <a
-                      href='/project-detail/{{@index}}'
+                      href='/project-detail/{{this.id}}'
                       style='color: inherit; text-decoration: none;'
                       target='_blank'
                     ><h5 class='card-title'>{{this.title}}</h5> </a>
@@ -270,12 +270,12 @@
                     <div
                       class='d-flex flex-row justify-content-center mt-5'
                     >
-                      <a href='/update-project/{{@index}}'><button
+                      <a href='/update-project/{{this.id}}'><button
                           type='button'
                           class='btn btn-dark w-100 me-1'
                         >Edit</button>
                       </a>
-                      <a href='/delete-project/{{@index}}'><button
+                      <a href='/delete-project/{{this.id}}'><button
                           type='button'
                           class='btn btn-dark w-100 ms-1'
                         >Delete</button>
