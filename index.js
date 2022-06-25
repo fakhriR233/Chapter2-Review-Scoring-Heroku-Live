@@ -111,8 +111,8 @@ db.connect(function (err, client, done) {
           go: updateData.go,
         };
 
-        let beginDate = dateUnix(new Date(updateData.startDate));
-        let finishDate = dateUnix(new Date(updateData.endDate));
+        let beginDate = new Date(updateData.startDate).toISOString().split('T')[0];
+        let finishDate = new Date(updateData.endDate).toISOString().split('T')[0];
 
         response.render('update-project', {
           updateData: updateData,
@@ -272,26 +272,26 @@ function fullTime(tanggal) {
   return all;
 }
 
-function dateUnix(theDate) {
-  let bulan = [
-    '1',
-    '2',
-    '3',
-    '4',
-    '5',
-    '6',
-    '7',
-    '8',
-    '9',
-    '10',
-    '11',
-    '12',
-  ];
-  let date = theDate.getDate();
-  let monthIndex = theDate.getMonth();
-  let year = theDate.getFullYear();
+// function dateUnix(theDate) {
+//   let bulan = [
+//     '01',
+//     '02',
+//     '03',
+//     '04',
+//     '05',
+//     '06',
+//     '07',
+//     '08',
+//     '09',
+//     '10',
+//     '11',
+//     '12',
+//   ];
+//   let date = theDate.getDate();
+//   let monthIndex = theDate.getMonth();
+//   let year = theDate.getFullYear();
 
-  let all = `${year}-${bulan[monthIndex]}-${date}`;
+//   let all = `${year}-${bulan[monthIndex]}-${date}`;
 
-  return all;
-}
+//   return all;
+// }
