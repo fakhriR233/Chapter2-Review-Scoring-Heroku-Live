@@ -13,7 +13,7 @@ app.use('/assets', express.static(__dirname + '/assets'));
 
 app.use(express.urlencoded({ extended: false }));
 
-let isLogin = true;
+let isLogin = false;
 // let projectDetail = [
 //   {
 //     title: 'Aplikasi Dumbways 2021',
@@ -55,6 +55,16 @@ db.connect(function (err, client, done) {
   app.get('/contact-me', function (request, response) {
     response.render('contact-me');
   });
+
+  app.get('/register', function (request, response) {
+    response.render('register');
+  });
+
+  app.get('/login', function (request, response) {
+    response.render('login');
+  });
+
+
 
   app.get('/add-project', function (request, response) {
     response.render('add-project');
