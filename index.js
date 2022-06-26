@@ -1,9 +1,23 @@
 const { request } = require('express');
 const express = require('express');
+const bcrypt = require('bcrypt')
+const session = require('express-session')
+const flash = require('express-flash')
 
 const app = express();
 
 const port = 8000;
+
+app.use(flash()) //use flash message
+
+app.use(session({
+  secret: 'koderahasia',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { 
+      maxAge: 2 * 60 * 60 * 1000 // 2 HOURS MAX SESSION
+   }
+}))
 
 const db = require('./connection/db');
 
@@ -13,7 +27,7 @@ app.use('/assets', express.static(__dirname + '/assets'));
 
 app.use(express.urlencoded({ extended: false }));
 
-let isLogin = false;
+//let isLogin = false;
 // let projectDetail = [
 //   {
 //     title: 'Aplikasi Dumbways 2021',
@@ -40,7 +54,7 @@ db.connect(function (err, client, done) {
       let allData = data.map(function (item) {
         return {
           ...item,
-          isLogin,
+          isLogin: request.session.isLogin, //isLogin becoming session
           duration: distance(
             new Date(item.startDate),
             new Date(item.endDate)
@@ -48,26 +62,97 @@ db.connect(function (err, client, done) {
         };
       });
 
-      response.render('index', { isLogin, full: allData });
+      response.render('index', { full: allData, user: request.session.user, isLogin: request.session.isLogin});
     });
   });
 
   app.get('/contact-me', function (request, response) {
-    response.render('contact-me');
+    response.render('contact-me', {user: request.session.user, isLogin: request.session.isLogin});
   });
+
+
+  //REGISTRATION
 
   app.get('/register', function (request, response) {
     response.render('register');
   });
 
+  app.post('/register', function(request,response){
+    // let data = request.body
+
+    let {inputName, inputEmail, inputPassword} = request.body
+
+    const encryptPassword = bcrypt.hashSync(inputPassword, 10)
+    //encrypt password with 10 salt rounds (Cost Duration time)
+
+    //console.log(inputName,inputEmail,encryptPassword);
+
+     const query = `INSERT INTO tb_users(name, email, password)
+     VALUES ('${inputName}', '${inputEmail}', '${encryptPassword}');`
+
+    client.query(query, function(err, result){
+        if(err) throw err
+        request.flash('success', 'Berhasil Mendaftar!');
+        response.redirect('/login')
+    })
+
+})
+
+
+  //LOGIN
+
   app.get('/login', function (request, response) {
     response.render('login');
   });
 
+  app.post('/login', function(request,response){
 
+    let {inputEmail, inputPassword} = request.body
+
+    const query = `SELECT * FROM tb_users WHERE email='${inputEmail}'`
+
+    client.query(query, function(err, result){
+        if(err) throw err
+
+        console.log(result.rows);
+
+        //Checking tb_users for existing email
+        if(result.rows.length == 0){
+            request.flash('danger', 'Email belum terdaftar!')
+            return response.redirect('/login')
+        }
+
+        //matching input password to DB using bcrypt.compareSync
+        const passMatch = bcrypt.compareSync(inputPassword, result.rows[0].password)
+
+        if(passMatch){
+            // Creating Session using the selected user using isLogin
+            request.session.isLogin = true
+            request.session.user = {
+                id: result.rows[0].id,
+                name: result.rows[0].name,
+                email: result.rows[0].email,
+            }
+
+            request.flash('success', 'Login Success')
+            response.redirect('/')
+
+        } else {
+            request.flash('danger', 'Password Salah!')
+            response.redirect('/login')
+        }
+    })
+})
 
   app.get('/add-project', function (request, response) {
-    response.render('add-project');
+
+    //check if user has logged in
+    if(!request.session.user){
+      request.flash('notLogin', 'Silahkan Login Terlebih Dahulu!')
+      return response.redirect('/login')
+    }
+
+    response.render('add-project', {user: request.session.user, isLogin: request.session.isLogin});
   });
 
   app.get('/project-detail/:index', function (request, response) {
@@ -224,6 +309,11 @@ db.connect(function (err, client, done) {
       }
     );
   });
+
+  app.get('/logout', function(request,response){
+    request.session.destroy()
+    response.redirect('/')
+  })
 
   app.listen(port, function () {
     console.log(`Server running on port ${port}`);
