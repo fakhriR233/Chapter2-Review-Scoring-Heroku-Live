@@ -6,7 +6,8 @@ const flash = require('express-flash')
 
 const app = express();
 
-const port = 8000;
+const port = process.env.PORT || 8000;
+const upload = require('./middlewares/fileUpload')
 
 app.use(flash()) //use flash message
 
@@ -24,6 +25,7 @@ const db = require('./connection/db');
 app.set('view engine', 'hbs'); //set view engine
 
 app.use('/assets', express.static(__dirname + '/assets'));
+app.use('/uploads', express.static(__dirname + '/uploads'));
 
 app.use(express.urlencoded({ extended: false }));
 
@@ -45,7 +47,12 @@ db.connect(function (err, client, done) {
   app.get('/', function (request, response) {
     //console.log(data);
 
-    client.query('SELECT * FROM tb_projects', function (err, result) {
+    const query = `SELECT tb_projects.id, tb_projects.author_id, tb_users.name, tb_projects.title, tb_projects.image, 
+    tb_projects.content, tb_projects."startDate", tb_projects."endDate",
+    tb_projects.nodejs, tb_projects.reactjs, tb_projects.ruby, tb_projects.go
+    FROM tb_projects LEFT JOIN tb_users ON tb_projects.author_id = tb_users.id ORDER BY id DESC`
+
+    client.query(query, function (err, result) {
       if (err) throw err;
       //console.log(result.rows);
 
@@ -62,7 +69,16 @@ db.connect(function (err, client, done) {
         };
       });
 
-      response.render('index', { full: allData, user: request.session.user, isLogin: request.session.isLogin});
+      let filterBlog
+      if(request.session.user){
+          filterBlog = allData.filter(function(item) {
+              return item.author_id === request.session.user.id
+          })
+      }
+
+      let showProjects = request.session.user ? filterBlog : allData
+
+      response.render('index', { full: showProjects, user: request.session.user, isLogin: request.session.isLogin});
     });
   });
 
@@ -114,7 +130,7 @@ db.connect(function (err, client, done) {
     client.query(query, function(err, result){
         if(err) throw err
 
-        console.log(result.rows);
+        //console.log(result.rows);
 
         //Checking tb_users for existing email
         if(result.rows.length == 0){
@@ -204,16 +220,29 @@ db.connect(function (err, client, done) {
           reactjs: updateData.reactjs,
           ruby: updateData.ruby,
           go: updateData.go,
+          isLogin: request.session.isLogin
         };
+
+        //validasi checkbox
+        const nodeCheck = updateData.nodejs=== "undefined" ? false : true
+        const reactCheck = updateData.reactjs === "undefined" ? false : true
+        const rubyCheck = updateData.ruby === "undefined" ? false : true
+        const goCheck = updateData.go === "undefined" ? false : true
 
         let beginDate = new Date(updateData.startDate).toISOString().split('T')[0];
         let finishDate = new Date(updateData.endDate).toISOString().split('T')[0];
 
         response.render('update-project', {
           updateData: updateData,
+          nodeCheck,
+          reactCheck,
+          rubyCheck,
+          goCheck,
           beginDate,
           finishDate,
           full: index,
+          user: request.session.user, 
+          isLogin: request.session.isLogin
         });
       }
     );
@@ -221,9 +250,11 @@ db.connect(function (err, client, done) {
     //let updateData = projectDetail[index];
   });
 
-  app.post('/update-project/:index', function (request, response) {
+  app.post('/update-project/:index',upload.single('formFile'), function (request, response) {
     let updated = request.body;
     let index = request.params.index;
+    //const authorId = request.session.user.id
+    const image = request.file.filename
 
     const query = `UPDATE tb_projects 
     SET title='${updated.inputTitle}', 
@@ -233,11 +264,13 @@ db.connect(function (err, client, done) {
       nodejs='${updated.check1}', 
       reactjs='${updated.check2}', 
       ruby='${updated.check3}', 
-      go='${updated.check4}'
+      go='${updated.check4}',
+      image='${image}'
       WHERE id=${index}`;
 
     client.query(query, function (err, result) {
       if (err) throw err;
+      request.flash('editDone', 'Edit Berhasil!')
 
       // updated = {
       //   title: updated.inputTitle,
@@ -261,8 +294,11 @@ db.connect(function (err, client, done) {
     done;
   });
 
-  app.post('/add-project', function (request, response) {
+  app.post('/add-project', upload.single('formFile'), function (request, response) {
     const allData = request.body;
+
+    const authorId = request.session.user.id
+    const image = request.file.filename
 
     // allData = {
     //   title: allData.inputTitle,
@@ -280,13 +316,15 @@ db.connect(function (err, client, done) {
     //   image: 'no image',
     // };
 
-    const query = `INSERT INTO tb_projects(title, content, "startDate", "endDate", nodejs, reactjs, ruby, go)
+    const query = `INSERT INTO tb_projects(title, content, "startDate", "endDate", nodejs, reactjs, ruby, go, author_id, image)
       VALUES ('${allData.inputTitle}', '${allData.desc}', 
       '${allData.inputStartDate}', '${allData.inputEndDate}', 
       '${allData.check1}', 
       '${allData.check2}', 
       '${allData.check3}', 
-      '${allData.check4}')`;
+      '${allData.check4}',
+      '${authorId}',
+      '${image}');`
 
     client.query(query, function (err, result) {
       if (err) throw err;

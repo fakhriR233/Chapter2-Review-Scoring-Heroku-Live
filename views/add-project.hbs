@@ -93,6 +93,7 @@
         class='form'
         action='/add-project/{{index}}'
         method='POST'
+        enctype='multipart/form-data'
       >
         <div
           class='row p-3 w-50 justify-content-center align-center mx-auto'
@@ -222,6 +223,7 @@
                   class='form-control'
                   type='file'
                   id='formFile'
+                  name='formFile'
                 />
                 <!-- <i class="fa-solid fa-paperclip"></i> -->
               </div>

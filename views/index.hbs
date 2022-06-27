@@ -255,6 +255,11 @@
 
     <section class='p-5'>
       <div class=''>
+        {{#if messages.editDone}}
+          <div class="alert alert-success" role="alert">
+            {{messages.editDone}}
+          </div>
+        {{/if}}
         <h1 class='text-center mt-3 mb-2 fw-bold'>My Project</h1>
 
         <div class='mt-4 row row-cols-1 row-cols-md-3 g-4'>
@@ -263,7 +268,7 @@
             <div class='col'>
               <div class='card'>
                 <img
-                  src='https://img-cdn.hltv.org/gallerypicture/jUe80LTAcnjwX0XwvliFM-.jpg?ixlib=java-2.1.0&m=%2Fm.png&mw=1091&mx=202&my=4847&w=8192&s=d96ec395fb94a052d06d4caaf35d087c'
+                  src='uploads/{{this.image}}'
                   class='card-img-top'
                   alt='Project Thumbnail'
                 />
@@ -284,6 +289,7 @@
                       <i class='{{this.ruby}}'></i>
                       <i class='{{this.go}}'></i>
                     </p>
+                    {{#if isLogin}}
                     <div
                       class='d-flex flex-row justify-content-center mt-5'
                     >
@@ -298,6 +304,7 @@
                         >Delete</button>
                       </a>
                     </div>
+                    {{/if}}
                   </div>
                 </div>
               </div>

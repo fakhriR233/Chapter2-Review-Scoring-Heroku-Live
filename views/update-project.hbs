@@ -66,7 +66,18 @@
               </li>
             </ul>
             <form class='d-flex' role='search'>
-              <a href='/contact-me'>
+              {{#if isLogin}}
+              <div class="mx-3">
+                <a href="#" class="me-3" style="text-decoration:none ;">Halo, {{user.name}}</a>
+                <a href="/logout" class="btn-auth"><button type="button" class="btn btn-outline-dark">Logout</button></a>
+              </div>
+              {{else}}
+              <div class="mx-3">
+                <a href="/register" class="btn-auth"><button type="button" class="btn btn-outline-secondary">Register</button></a>
+                <a href="/login" class="btn-auth"><button type="button" class="btn btn-outline-secondary">Login</button></a>
+              </div>
+              {{/if}}
+                <a href='/contact-me'>
                 <button type='button' class='btn btn-dark ContactMe'>
                   Contact Me
                 </button>
@@ -76,11 +87,13 @@
         </div>
       </nav>
     </header>
+
     <div class='bg-secondary bg-opacity-10 min-vh-100'>
       <form
         class='form'
         action='/update-project/{{full}}'
         method='POST'
+        enctype='multipart/form-data'
       >
         <div
           class='row p-3 w-50 justify-content-center align-center mx-auto'
@@ -154,7 +167,7 @@
                     value='fa-brands fa-node-js fa-2xl'
                     id='flexCheckDefault'
                     name='check1'
-                    {{#if updateData.nodejs}}checked{{/if}}
+                    {{#if nodeCheck}}checked{{/if}}
                   />
                   <label
                     class='form-check-label'
@@ -171,7 +184,7 @@
                     value='fa-brands fa-react fa-2xl'
                     id='defaultCheck1'
                     name='check2'
-                    {{#if updateData.reactjs}}checked{{/if}}
+                    {{#if reactCheck}}checked{{/if}}
                   />
                   <label class='form-check-label' for='defaultCheck1'>
                     React Js
@@ -185,7 +198,7 @@
                     value='fa-solid fa-gem fa-2xl'
                     id='defaultCheck2'
                     name='check3'
-                    {{#if updateData.ruby}}checked{{/if}}
+                    {{#if rubyCheck}}checked{{/if}}
                   />
                   <label class='form-check-label' for='defaultCheck2'>
                     Ruby on Rails
@@ -199,7 +212,7 @@
                     value='fa-brands fa-golang fa-2xl'
                     id='defaultCheck3'
                     name='check4'
-                    {{#if updateData.go}}checked{{/if}}
+                    {{#if goCheck}}checked{{/if}}
                   />
                   <label class='form-check-label' for='defaultCheck3'>
                     Go
@@ -217,6 +230,7 @@
                   class='form-control'
                   type='file'
                   id='formFile'
+                  name='formFile'
                 />
                 <!-- <i class="fa-solid fa-paperclip"></i> -->
               </div>
