@@ -1,31 +1,34 @@
-const { request } = require('express');
-const express = require('express');
-const bcrypt = require('bcrypt')
-const session = require('express-session')
-const flash = require('express-flash')
+const { request } = require("express");
+const express = require("express");
+const bcrypt = require("bcrypt");
+const session = require("express-session");
+const flash = require("express-flash");
+const swal = require("sweetalert2");
 
 const app = express();
 
 const port = process.env.PORT || 8000;
-const upload = require('./middlewares/fileUpload')
+const upload = require("./middlewares/fileUpload");
 
-app.use(flash()) //use flash message
+app.use(flash()); //use flash message
 
-app.use(session({
-  secret: 'koderahasia',
-  resave: false,
-  saveUninitialized: true,
-  cookie: { 
-      maxAge: 2 * 60 * 60 * 1000 // 2 HOURS MAX SESSION
-   }
-}))
+app.use(
+  session({
+    secret: "koderahasia",
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+      maxAge: 2 * 60 * 60 * 1000, // 2 HOURS MAX SESSION
+    },
+  })
+);
 
-const db = require('./connection/db');
+const db = require("./connection/db");
 
-app.set('view engine', 'hbs'); //set view engine
+app.set("view engine", "hbs"); //set view engine
 
-app.use('/assets', express.static(__dirname + '/assets'));
-app.use('/uploads', express.static(__dirname + '/uploads'));
+app.use("/assets", express.static(__dirname + "/assets"));
+app.use("/uploads", express.static(__dirname + "/uploads"));
 
 app.use(express.urlencoded({ extended: false }));
 
@@ -44,13 +47,13 @@ app.use(express.urlencoded({ extended: false }));
 db.connect(function (err, client, done) {
   if (err) throw err; //menampilkan error koneksi db
 
-  app.get('/', function (request, response) {
+  app.get("/", function (request, response) {
     //console.log(data);
 
     const query = `SELECT tb_projects.id, tb_projects.author_id, tb_users.name, tb_projects.title, tb_projects.image, 
     tb_projects.content, tb_projects."startDate", tb_projects."endDate",
     tb_projects.nodejs, tb_projects.reactjs, tb_projects.ruby, tb_projects.go
-    FROM tb_projects LEFT JOIN tb_users ON tb_projects.author_id = tb_users.id ORDER BY id DESC`
+    FROM tb_projects LEFT JOIN tb_users ON tb_projects.author_id = tb_users.id ORDER BY id DESC`;
 
     client.query(query, function (err, result) {
       if (err) throw err;
@@ -62,116 +65,122 @@ db.connect(function (err, client, done) {
         return {
           ...item,
           isLogin: request.session.isLogin, //isLogin becoming session
-          duration: distance(
-            new Date(item.startDate),
-            new Date(item.endDate)
-          ),
+          duration: distance(new Date(item.startDate), new Date(item.endDate)),
         };
       });
 
-      let filterBlog
-      if(request.session.user){
-          filterBlog = allData.filter(function(item) {
-              return item.author_id === request.session.user.id
-          })
+      //console.log(allData);
+
+      let filterBlog;
+      if (request.session.user) {
+        filterBlog = allData.filter(function (item) {
+          return item.author_id === request.session.user.id;
+        });
       }
 
-      let showProjects = request.session.user ? filterBlog : allData
+      let showProjects = request.session.user ? filterBlog : allData;
 
-      response.render('index', { full: showProjects, user: request.session.user, isLogin: request.session.isLogin});
+      response.render("index", {
+        full: showProjects,
+        user: request.session.user,
+        isLogin: request.session.isLogin,
+      });
     });
   });
 
-  app.get('/contact-me', function (request, response) {
-    response.render('contact-me', {user: request.session.user, isLogin: request.session.isLogin});
+  app.get("/contact-me", function (request, response) {
+    response.render("contact-me", {
+      user: request.session.user,
+      isLogin: request.session.isLogin,
+    });
   });
-
 
   //REGISTRATION
 
-  app.get('/register', function (request, response) {
-    response.render('register');
+  app.get("/register", function (request, response) {
+    response.render("register");
   });
 
-  app.post('/register', function(request,response){
+  app.post("/register", function (request, response) {
     // let data = request.body
 
-    let {inputName, inputEmail, inputPassword} = request.body
+    let { inputName, inputEmail, inputPassword } = request.body;
 
-    const encryptPassword = bcrypt.hashSync(inputPassword, 10)
+    const encryptPassword = bcrypt.hashSync(inputPassword, 10);
     //encrypt password with 10 salt rounds (Cost Duration time)
 
     //console.log(inputName,inputEmail,encryptPassword);
 
-     const query = `INSERT INTO tb_users(name, email, password)
-     VALUES ('${inputName}', '${inputEmail}', '${encryptPassword}');`
+    const query = `INSERT INTO tb_users(name, email, password)
+     VALUES ('${inputName}', '${inputEmail}', '${encryptPassword}');`;
 
-    client.query(query, function(err, result){
-        if(err) throw err
-        request.flash('success', 'Berhasil Mendaftar!');
-        response.redirect('/login')
-    })
-
-})
-
+    client.query(query, function (err, result) {
+      if (err) throw err;
+      request.flash("success", "Berhasil Mendaftar!");
+      response.redirect("/login");
+    });
+  });
 
   //LOGIN
 
-  app.get('/login', function (request, response) {
-    response.render('login');
+  app.get("/login", function (request, response) {
+    response.render("login");
   });
 
-  app.post('/login', function(request,response){
+  app.post("/login", function (request, response) {
+    let { inputEmail, inputPassword } = request.body;
 
-    let {inputEmail, inputPassword} = request.body
+    const query = `SELECT * FROM tb_users WHERE email='${inputEmail}'`;
 
-    const query = `SELECT * FROM tb_users WHERE email='${inputEmail}'`
+    client.query(query, function (err, result) {
+      if (err) throw err;
 
-    client.query(query, function(err, result){
-        if(err) throw err
+      //console.log(result.rows);
 
-        //console.log(result.rows);
+      //Checking tb_users for existing email
+      if (result.rows.length == 0) {
+        request.flash("danger", "Email belum terdaftar!");
+        return response.redirect("/login");
+      }
 
-        //Checking tb_users for existing email
-        if(result.rows.length == 0){
-            request.flash('danger', 'Email belum terdaftar!')
-            return response.redirect('/login')
-        }
+      //matching input password to DB using bcrypt.compareSync
+      const passMatch = bcrypt.compareSync(
+        inputPassword,
+        result.rows[0].password
+      );
 
-        //matching input password to DB using bcrypt.compareSync
-        const passMatch = bcrypt.compareSync(inputPassword, result.rows[0].password)
+      if (passMatch) {
+        // Creating Session using the selected user using isLogin
+        request.session.isLogin = true;
+        request.session.user = {
+          id: result.rows[0].id,
+          name: result.rows[0].name,
+          email: result.rows[0].email,
+        };
 
-        if(passMatch){
-            // Creating Session using the selected user using isLogin
-            request.session.isLogin = true
-            request.session.user = {
-                id: result.rows[0].id,
-                name: result.rows[0].name,
-                email: result.rows[0].email,
-            }
+        request.flash("success", "Login Success");
+        response.redirect("/");
+      } else {
+        request.flash("danger", "Password Salah!");
+        response.redirect("/login");
+      }
+    });
+  });
 
-            request.flash('success', 'Login Success')
-            response.redirect('/')
-
-        } else {
-            request.flash('danger', 'Password Salah!')
-            response.redirect('/login')
-        }
-    })
-})
-
-  app.get('/add-project', function (request, response) {
-
+  app.get("/add-project", function (request, response) {
     //check if user has logged in
-    if(!request.session.user){
-      request.flash('notLogin', 'Silahkan Login Terlebih Dahulu!')
-      return response.redirect('/login')
+    if (!request.session.user) {
+      request.flash("notLogin", "Silahkan Login Terlebih Dahulu!");
+      return response.redirect("/login");
     }
 
-    response.render('add-project', {user: request.session.user, isLogin: request.session.isLogin});
+    response.render("add-project", {
+      user: request.session.user,
+      isLogin: request.session.isLogin,
+    });
   });
 
-  app.get('/project-detail/:index', function (request, response) {
+  app.get("/project-detail/:index", function (request, response) {
     let index = request.params.index;
 
     //console.log(index);
@@ -195,13 +204,31 @@ db.connect(function (err, client, done) {
           reactjs: detail.reactjs,
           ruby: detail.ruby,
           go: detail.go,
+          image: detail.image,
+          isLogin: request.session.isLogin,
         };
-        response.render('project-detail', detail);
+
+        console.log(detail);
+
+        const nodeCheck = detail.nodejs === "undefined" ? false : true;
+        const reactCheck = detail.reactjs === "undefined" ? false : true;
+        const rubyCheck = detail.ruby === "undefined" ? false : true;
+        const goCheck = detail.go === "undefined" ? false : true;
+
+        response.render("project-detail", {
+          detail,
+          nodeCheck,
+          reactCheck,
+          rubyCheck,
+          goCheck,
+          user: request.session.user,
+          isLogin: request.session.isLogin,
+        });
       }
     );
   });
 
-  app.get('/update-project/:index', function (request, response) {
+  app.get("/update-project/:index", function (request, response) {
     let index = request.params.index;
 
     client.query(
@@ -220,19 +247,23 @@ db.connect(function (err, client, done) {
           reactjs: updateData.reactjs,
           ruby: updateData.ruby,
           go: updateData.go,
-          isLogin: request.session.isLogin
+          isLogin: request.session.isLogin,
         };
 
         //validasi checkbox
-        const nodeCheck = updateData.nodejs=== "undefined" ? false : true
-        const reactCheck = updateData.reactjs === "undefined" ? false : true
-        const rubyCheck = updateData.ruby === "undefined" ? false : true
-        const goCheck = updateData.go === "undefined" ? false : true
+        const nodeCheck = updateData.nodejs === "undefined" ? false : true;
+        const reactCheck = updateData.reactjs === "undefined" ? false : true;
+        const rubyCheck = updateData.ruby === "undefined" ? false : true;
+        const goCheck = updateData.go === "undefined" ? false : true;
 
-        let beginDate = new Date(updateData.startDate).toISOString().split('T')[0];
-        let finishDate = new Date(updateData.endDate).toISOString().split('T')[0];
+        let beginDate = new Date(updateData.startDate)
+          .toISOString()
+          .split("T")[0];
+        let finishDate = new Date(updateData.endDate)
+          .toISOString()
+          .split("T")[0];
 
-        response.render('update-project', {
+        response.render("update-project", {
           updateData: updateData,
           nodeCheck,
           reactCheck,
@@ -241,8 +272,8 @@ db.connect(function (err, client, done) {
           beginDate,
           finishDate,
           full: index,
-          user: request.session.user, 
-          isLogin: request.session.isLogin
+          user: request.session.user,
+          isLogin: request.session.isLogin,
         });
       }
     );
@@ -250,13 +281,16 @@ db.connect(function (err, client, done) {
     //let updateData = projectDetail[index];
   });
 
-  app.post('/update-project/:index',upload.single('formFile'), function (request, response) {
-    let updated = request.body;
-    let index = request.params.index;
-    //const authorId = request.session.user.id
-    const image = request.file.filename
+  app.post(
+    "/update-project/:index",
+    upload.single("formFile"),
+    function (request, response) {
+      let updated = request.body;
+      let index = request.params.index;
+      //const authorId = request.session.user.id
+      const image = request.file.filename;
 
-    const query = `UPDATE tb_projects 
+      const query = `UPDATE tb_projects 
     SET title='${updated.inputTitle}', 
       content='${updated.desc}', 
       "startDate"='${updated.inputStartDate}', 
@@ -268,55 +302,59 @@ db.connect(function (err, client, done) {
       image='${image}'
       WHERE id=${index}`;
 
-    client.query(query, function (err, result) {
-      if (err) throw err;
-      request.flash('editDone', 'Edit Berhasil!')
+      client.query(query, function (err, result) {
+        if (err) throw err;
+        request.flash("editDone", "Edit Berhasil!");
 
-      // updated = {
-      //   title: updated.inputTitle,
-      //   startDate: updated.inputStartDate,
-      //   endDate: updated.inputEndDate,
+        // updated = {
+        //   title: updated.inputTitle,
+        //   startDate: updated.inputStartDate,
+        //   endDate: updated.inputEndDate,
+        //   duration: distance(
+        //     updated.inputStartDate,
+        //     updated.inputEndDate
+        //   ),
+        //   content: updated.desc,
+        //   nodejs: updated.check1,
+        //   reactjs: updated.check2,
+        //   ruby: updated.check3,
+        //   go: updated.check4,
+        // };
+
+        // projectDetail[index] = updated;
+
+        response.redirect("/");
+      });
+      done;
+    }
+  );
+
+  app.post(
+    "/add-project",
+    upload.single("formFile"),
+    function (request, response) {
+      const allData = request.body;
+
+      const authorId = request.session.user.id;
+      const image = request.file.filename;
+
+      // allData = {
+      //   title: allData.inputTitle,
+      //   startDate: allData.inputStartDate,
+      //   endDate: allData.inputEndDate,
       //   duration: distance(
-      //     updated.inputStartDate,
-      //     updated.inputEndDate
+      //     allData.inputStartDate,
+      //     allData.inputEndDate
       //   ),
-      //   content: updated.desc,
-      //   nodejs: updated.check1,
-      //   reactjs: updated.check2,
-      //   ruby: updated.check3,
-      //   go: updated.check4,
+      //   content: allData.desc,
+      //   nodejs: allData.check1,
+      //   reactjs: allData.check2,
+      //   ruby: allData.check3,
+      //   go: allData.check4,
+      //   image: 'no image',
       // };
 
-      // projectDetail[index] = updated;
-
-      response.redirect('/');
-    });
-    done;
-  });
-
-  app.post('/add-project', upload.single('formFile'), function (request, response) {
-    const allData = request.body;
-
-    const authorId = request.session.user.id
-    const image = request.file.filename
-
-    // allData = {
-    //   title: allData.inputTitle,
-    //   startDate: allData.inputStartDate,
-    //   endDate: allData.inputEndDate,
-    //   duration: distance(
-    //     allData.inputStartDate,
-    //     allData.inputEndDate
-    //   ),
-    //   content: allData.desc,
-    //   nodejs: allData.check1,
-    //   reactjs: allData.check2,
-    //   ruby: allData.check3,
-    //   go: allData.check4,
-    //   image: 'no image',
-    // };
-
-    const query = `INSERT INTO tb_projects(title, content, "startDate", "endDate", nodejs, reactjs, ruby, go, author_id, image)
+      const query = `INSERT INTO tb_projects(title, content, "startDate", "endDate", nodejs, reactjs, ruby, go, author_id, image)
       VALUES ('${allData.inputTitle}', '${allData.desc}', 
       '${allData.inputStartDate}', '${allData.inputEndDate}', 
       '${allData.check1}', 
@@ -324,18 +362,19 @@ db.connect(function (err, client, done) {
       '${allData.check3}', 
       '${allData.check4}',
       '${authorId}',
-      '${image}');`
+      '${image}');`;
 
-    client.query(query, function (err, result) {
-      if (err) throw err;
+      client.query(query, function (err, result) {
+        if (err) throw err;
 
-      response.redirect('/');
-    });
+        response.redirect("/");
+      });
 
-    //console.log();
-  });
+      //console.log();
+    }
+  );
 
-  app.get('/delete-project/:index', function (request, response) {
+  app.get("/delete-project/:index", function (request, response) {
     // console.log(request.params.index);
     let index = request.params.index;
 
@@ -343,20 +382,22 @@ db.connect(function (err, client, done) {
       `DELETE FROM tb_projects WHERE id=${index}`,
       function (err, result) {
         if (err) throw err;
-        response.redirect('/');
+        console.log(result);
+        request.flash("deleteDone", "Delete Berhasil!");
+        response.redirect("/");
       }
     );
+    done;
   });
 
-  app.get('/logout', function(request,response){
-    request.session.destroy()
-    response.redirect('/')
-  })
+  app.get("/logout", function (request, response) {
+    request.session.destroy();
+    response.redirect("/");
+  });
 
   app.listen(process.env.PORT || port, () => {
     console.log(`Server is running on port ${port}`);
   });
-
 });
 
 function distance(start, end) {
@@ -367,7 +408,7 @@ function distance(start, end) {
   if (endDate >= startDate) {
     timeLine = new Date(endDate - startDate);
   } else {
-    return 'End Date Ngaco!, Periksa kembali tanggal anda!';
+    return "End Date Ngaco!, Periksa kembali tanggal anda!";
   }
 
   let distance = Math.floor(timeLine / (1000 * 3600 * 24));
@@ -378,7 +419,7 @@ function distance(start, end) {
 
   //menghitung timeline project
   if (distance < 30) {
-    return (timeLine = 'Dibawah 1 Bulan');
+    return (timeLine = "Dibawah 1 Bulan");
   } else if (distance >= 30 && distance < 365) {
     return (timeLine = `${distanceMonth} Bulan`);
   } else {
@@ -388,18 +429,18 @@ function distance(start, end) {
 
 function fullTime(tanggal) {
   let month = [
-    'Januari',
-    'Febuari',
-    'Maret',
-    'April',
-    'Mei',
-    'Juni',
-    'Juli',
-    'Agustus',
-    'September',
-    'Oktober',
-    'November',
-    'Desember',
+    "Januari",
+    "Febuari",
+    "Maret",
+    "April",
+    "Mei",
+    "Juni",
+    "Juli",
+    "Agustus",
+    "September",
+    "Oktober",
+    "November",
+    "Desember",
   ];
 
   let date = tanggal.getDate();
@@ -434,3 +475,7 @@ function fullTime(tanggal) {
 
 //   return all;
 // }
+
+function sweet() {
+  swal.fire("Hello World!");
+}

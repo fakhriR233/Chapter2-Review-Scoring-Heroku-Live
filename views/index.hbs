@@ -23,6 +23,8 @@
       integrity='sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2'
       crossorigin='anonymous'
     ></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
   </head>
   <!-- <style>
     .ContactMe:hover {
@@ -259,6 +261,13 @@
             {{messages.editDone}}
           </div>
         {{/if}}
+
+            {{#if messages.deleteDone}}
+              <div >
+                {{messages.deleteDone}}
+              </div>
+            {{/if}}
+
         <h1 class='text-center mt-3 mb-2 fw-bold'>My Project</h1>
 
         <div class='mt-4 row row-cols-1 row-cols-md-3 g-4'>
@@ -297,21 +306,51 @@
                           class='btn btn-dark w-100 me-1'
                         >Edit</button>
                       </a>
-                      <a href='/delete-project/{{this.id}}'><button
+                      <a href='/delete-project/{{this.id}}' onclick="return confirm('Yaqin?')"><button
                           type='button'
                           class='btn btn-dark w-100 ms-1'
                         >Delete</button>
                       </a>
                     </div>
                     {{/if}}
+
                   </div>
                 </div>
               </div>
             </div>
+
           {{/each}}
 
         </div>
       </div>
     </section>
   </body>
+  {{!-- <script>
+    function superDelete() {
+      event.preventDefault();
+      Swal.fire({
+  title: 'Are you sure?',
+  text: "You won't be able to revert this!",
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonColor: '#3085d6',
+  cancelButtonColor: '#d33',
+  confirmButtonText: 'Yes, delete it!'
+}).then((result) => {
+  if (result.isConfirmed) {
+    $.ajax({
+      url:'/delete-project/' + id,
+      type: 'DELETE',
+      success: function(data) {
+        Swal.fire(
+          'Deleted!',
+          'Your file has been deleted.',
+          'success'
+        )
+      }
+    })
+  }
+})
+    }
+  </script> --}}
 </html>
