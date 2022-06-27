@@ -7,8 +7,6 @@ const { Pool } = require('pg');
 //   password: 'admin',
 // });
 
-module.exports = dbPool;
-
 const isLive = process.env.NODE_ENV === "live"
 let dbPool
 
