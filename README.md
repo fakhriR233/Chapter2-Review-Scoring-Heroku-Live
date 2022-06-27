@@ -1,10 +1,5 @@
 # Chapter2-Task_Day6
 
-Auth and Session<br/>
+Table Relations and Upload Image<br/>
 
-Render Login and Register <br/>
-<br />
-Function Done<br/>
-Edit Project Dates now work<br/>
-Edit Project Checkbox still has bugs<br/>
-rest of pages doesn't has session function yet<br/>
+Check Box in update project is now functional, detail page is still incomplete.
